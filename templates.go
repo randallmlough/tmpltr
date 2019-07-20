@@ -2,7 +2,6 @@ package tmplts
 
 import (
 	"fmt"
-	"github.com/randallmlough/tmplts/funcmaps"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -28,6 +27,8 @@ func (e errTemplateNotFound) TemplateNotFound() bool {
 	return true
 }
 
+type RequestFuncMap = map[string]func(r *http.Request) interface{}
+
 type Templates struct {
 	Templates  map[string]*template.Template
 	Extensions map[string]bool
@@ -37,6 +38,7 @@ type Templates struct {
 	templates   []keyValue
 	partials    []keyValue
 	funcs       template.FuncMap
+	reqFuncs    RequestFuncMap
 	delimsLeft  string
 	delimsRight string
 
@@ -54,8 +56,7 @@ func New() *Templates {
 		Templates: map[string]*template.Template{},
 
 		funcs: template.FuncMap{},
-
-		pool: newPool(),
+		pool:  newPool(),
 	}
 }
 
@@ -128,6 +129,9 @@ func (t *Templates) Parse() {
 	}
 
 	// create a template that contains every partial
+	if t.reqFuncs != nil {
+		t.executeReqFuncMap(nil)
+	}
 	tmpl := template.New("").Funcs(t.funcs).Delims(t.delimsLeft, t.delimsRight)
 	for _, partial := range t.partials {
 		tmpl = template.Must(tmpl.New(partial.key).Parse(partial.value))
@@ -209,7 +213,10 @@ func (t *Templates) RenderRequest(r *http.Request, baseView, view string, data i
 	if err != nil {
 		return nil, fmt.Errorf("failed to get template in render request: %v", err)
 	}
-	tmpl.Funcs(funcmaps.RequestFuncMap(r))
+	if t.reqFuncs != nil {
+		t.executeReqFuncMap(r)
+		tmpl.Funcs(t.funcs)
+	}
 	if err := tmpl.ExecuteTemplate(buf, baseView, data); err != nil {
 		return nil, fmt.Errorf("templates: ExecuteTemplate error, baseView %q view %q %v", baseView, view, err)
 	}

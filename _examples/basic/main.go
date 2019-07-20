@@ -52,9 +52,9 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	tmpls.AddRequestFuncs(funcmaps.RequestFuncMap)
 	tmpls.AddFuncs(
 		sprig.FuncMap(),
-		funcmaps.RequestFuncMap(nil),
 	)
 }
 

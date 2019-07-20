@@ -1,16 +1,16 @@
 package funcmaps
 
 import (
+	"github.com/randallmlough/tmplts"
 	"net/http"
 )
 
-func RequestFuncMap(r *http.Request) map[string]interface{} {
-	return map[string]interface{}{
-		"url":    URL(r),
-		"method": Method(r),
-	}
+var RequestFuncMap = tmplts.RequestFuncMap{
+	"url":    url,
+	"method": method,
 }
-func URL(r *http.Request) func() string {
+
+func url(r *http.Request) interface{} {
 	return func() string {
 		if requestIsNil(r) || r.URL == nil {
 			return ""
@@ -18,7 +18,7 @@ func URL(r *http.Request) func() string {
 		return r.URL.Path
 	}
 }
-func Method(r *http.Request) func() string {
+func method(r *http.Request) interface{} {
 	return func() string {
 		if requestIsNil(r) {
 			return ""
