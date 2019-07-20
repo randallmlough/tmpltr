@@ -1,0 +1,10 @@
+{{ define "page" }}
+    <h2>{{.User.Name}}</h2>
+    <p>(psst: check out the console)</p>
+{{ end }}
+{{ define "page-scripts" }}
+    <script>
+        console.log("Scripts just for this page...");
+        console.log("Hi, {{.User.Name}}");
+    </script>
+{{ end }}

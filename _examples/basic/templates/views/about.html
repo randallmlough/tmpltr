@@ -1,0 +1,15 @@
+{{ define "head" }}
+	<meta title="foo" />
+{{ end }}
+
+{{ define "page" }}
+	<h2>About Page</h2>
+		{{ template "partials/simple.html" .}}
+	<p>{{ "A simple about page" | upper}}</p>
+{{ end }}
+
+{{ define "footer" }}
+	<footer>
+		About Page Footer
+	</footer>
+{{ end }}
